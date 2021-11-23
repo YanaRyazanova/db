@@ -1,18 +1,20 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace Game.Domain
 {
     public class GameEntity
     {
+        [BsonElement]
         private readonly List<Player> players;
 
         public GameEntity(int turnsCount)
             : this(Guid.Empty, GameStatus.WaitingToStart, turnsCount, 0, new List<Player>())
         {
         }
-
+        [BsonConstructor]
         public GameEntity(Guid id, GameStatus status, int turnsCount, int currentTurnIndex, List<Player> players)
         {
             Id = id;
@@ -21,16 +23,18 @@ namespace Game.Domain
             CurrentTurnIndex = currentTurnIndex;
             this.players = players;
         }
-
+        
         public Guid Id
         {
             get;
             // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local For MongoDB
             private set;
         }
-
+        
+        [BsonElement]
         public IReadOnlyList<Player> Players => players.AsReadOnly();
-
+        
+        [BsonElement]
         public int TurnsCount { get; }
 
         public int CurrentTurnIndex { get; private set; }
@@ -58,7 +62,8 @@ namespace Game.Domain
             if (!IsFinished())
                 Status = GameStatus.Canceled;
         }
-
+        
+        
         public bool HaveDecisionOfEveryPlayer => Players.All(p => p.Decision.HasValue);
 
         public void SetPlayerDecision(Guid userId, PlayerDecision decision)
